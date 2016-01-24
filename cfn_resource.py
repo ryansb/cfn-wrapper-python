@@ -70,8 +70,9 @@ def wrap_user_handler(func, base_response=None):
 class Resource(object):
     _dispatch = None
 
-    def __init__(self):
+    def __init__(self, wrapper=wrap_user_handler):
         self._dispatch = {}
+        self._wrapper = wrapper
 
     def __call__(self, event, context):
         request = event['RequestType']
@@ -80,20 +81,20 @@ class Resource(object):
 
     def _succeed(self, event, context):
         return {
-            'Status': 'SUCCESS',
+            'Status': SUCCESS,
             'PhysicalResourceId': event.get('PhysicalResourceId', 'mock-resource-id'),
             'Reason': 'Life is good, man',
             'Data': {},
         }
 
     def create(self, wraps):
-        self._dispatch['Create'] = wrap_user_handler(wraps)
+        self._dispatch['Create'] = self._wrapper(wraps)
         return wraps
 
     def update(self, wraps):
-        self._dispatch['Update'] = wrap_user_handler(wraps)
+        self._dispatch['Update'] = self._wrapper(wraps)
         return wraps
 
     def delete(self, wraps):
-        self._dispatch['Delete'] = wrap_user_handler(wraps)
+        self._dispatch['Delete'] = self._wrapper(wraps)
         return wraps
