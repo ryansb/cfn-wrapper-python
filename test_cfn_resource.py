@@ -1,4 +1,6 @@
 import json
+import mock
+
 import cfn_resource
 
 
@@ -56,7 +58,6 @@ base_event = {
 
 ### Tests for the wrapper function
 
-import mock
 
 @mock.patch('urllib2.urlopen')
 def test_client_code_failure(urlmock):
@@ -76,6 +77,7 @@ def test_client_code_failure(urlmock):
     assert reply['Status'] == cfn_resource.FAILED
     assert reply['StackId'] == base_event['StackId']
     assert reply['Reason'] == "Exception was raised while handling custom resource"
+
 
 @mock.patch('urllib2.urlopen')
 def test_sends_put_request(urlmock):
