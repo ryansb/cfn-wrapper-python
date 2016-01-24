@@ -31,7 +31,7 @@ class FakeLambdaContext(object):
         return '1234567890'
 
 
-def wrap_with_mock(func, base_response=None):
+def wrap_with_nothing(func, base_response=None):
     def wrapper(*args):
         return func(*args)
     return wrapper
@@ -56,10 +56,8 @@ base_event = {
 ### Tests for the Resource object and its decorator for wrapping
 ### user handlers
 
-cfn_resource.wrap_user_handler = wrap_with_mock
-
 def test_wraps_func():
-    rsrc = cfn_resource.Resource()
+    rsrc = cfn_resource.Resource(wrap_with_nothing)
     @rsrc.delete
     def delete(event, context):
         return {'Status': cfn_resource.FAILED}
@@ -71,7 +69,7 @@ def test_succeeds_default():
     event['PhysicalResourceId'] = 'my-existing-thing'
     event['RequestType'] = 'Update'
 
-    rsrc = cfn_resource.Resource()
+    rsrc = cfn_resource.Resource(wrap_with_nothing)
     resp = rsrc(event, FakeLambdaContext())
     assert resp == {
         'Status': 'SUCCESS',
@@ -81,7 +79,7 @@ def test_succeeds_default():
     }
 
 def test_double_register():
-    rsrc = cfn_resource.Resource()
+    rsrc = cfn_resource.Resource(wrap_with_nothing)
 
     event = base_event.copy()
     event['RequestType'] = 'Update'
@@ -98,7 +96,7 @@ def test_double_register():
     assert resp['Data'] == {'called-from': 2}
 
 def test_no_override():
-    rsrc = cfn_resource.Resource()
+    rsrc = cfn_resource.Resource(wrap_with_nothing)
 
     event = base_event.copy()
     event['RequestType'] = 'Create'
