@@ -1,4 +1,4 @@
-## cfn_wrapper.py
+## cfn_resource.py
 
 This project is a decorator and validation system that takes the drudgery out
 of writing custom resources. You still have access to the context and event as
@@ -10,9 +10,9 @@ Templeton if you're looking to write your custom resources in Node.js.
 
 ## Usage
 
-1. Copy `cfn_wrapper.py` into the directory of your lambda function handler
-1. Use the `cfn_resource` decorator to decorate your handler like in
-   `example.py`
+1. Copy `cfn_resource.py` into the directory of your lambda function handler.py
+1. Use the `cfn_resource.Resource` event decorators to decorate your handler
+   like in `example.py`
 1. Zip up the contents and upload to Lambda
 
 Once the function is up, copy its ARN and use it as the ServiceToken for your
@@ -39,14 +39,22 @@ For more on how custom resources work, see the [AWS docs][docs]
 
 ## Code Sample
 
+For this example, you need to have your handler in Lambda set as
+`filename.handler` where filename has the below contents.
+
 ```
-import cfn_wrapper
+import cfn_resource
 
 # set `handler` as the entry point for Lambda
-handler = cfn_wrapper.Resource()
+handler = cfn_resource.Resource()
 
 @handler.create
 def create_thing(event, context):
+    # do some stuff
+    return {"PhysicalResourceId": "arn:aws:fake:myID"}
+
+@handler.update
+def update_thing(event, context):
     # do some stuff
     return {"PhysicalResourceId": "arn:aws:fake:myID"}
 ```
