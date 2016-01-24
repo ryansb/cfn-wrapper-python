@@ -71,11 +71,22 @@ def test_client_code_failure(urlmock):
     args = urlmock.call_args
     sent_req = args[0][0]
 
-    assert sent_req.get_method() == 'PUT'
     reply = json.loads(sent_req.data)
+
     assert reply['Status'] == cfn_resource.FAILED
     assert reply['StackId'] == base_event['StackId']
     assert reply['Reason'] == "Exception was raised while handling custom resource"
+
+@mock.patch('urllib2.urlopen')
+def test_sends_put_request(urlmock):
+    rsrc = cfn_resource.Resource()
+
+    resp = rsrc(base_event.copy(), FakeLambdaContext())
+
+    args = urlmock.call_args
+    sent_req = args[0][0]
+
+    assert sent_req.get_method() == 'PUT'
 
 ### Tests for the Resource object and its decorator for wrapping
 ### user handlers

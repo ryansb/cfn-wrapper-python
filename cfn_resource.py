@@ -77,15 +77,18 @@ class Resource(object):
     def __call__(self, event, context):
         request = event['RequestType']
         logger.debug("Received {} type event. Full parameters: {}".format(request, json.dumps(event)))
-        return self._dispatch.get(request, self._succeed)(event, context)
+        return self._dispatch.get(request, self._succeed())(event, context)
 
-    def _succeed(self, event, context):
-        return {
-            'Status': SUCCESS,
-            'PhysicalResourceId': event.get('PhysicalResourceId', 'mock-resource-id'),
-            'Reason': 'Life is good, man',
-            'Data': {},
-        }
+    def _succeed(self):
+        @self._wrapper
+        def success(event, context):
+            return {
+                'Status': SUCCESS,
+                'PhysicalResourceId': event.get('PhysicalResourceId', 'mock-resource-id'),
+                'Reason': 'Life is good, man',
+                'Data': {},
+            }
+        return success
 
     def create(self, wraps):
         self._dispatch['Create'] = self._wrapper(wraps)
