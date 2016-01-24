@@ -29,7 +29,7 @@ def wrap_user_handler(func, base_response=None):
             "StackId": event["StackId"],
             "RequestId": event["RequestId"],
             "LogicalResourceId": event["LogicalResourceId"],
-            "Status": "SUCCESS",
+            "Status": SUCCESS,
         }
         if base_response is not None:
             response.update(base_response)
@@ -41,7 +41,7 @@ def wrap_user_handler(func, base_response=None):
         except:
             logger.exception("Failed to execute resource function")
             response.update({
-                "Status": "FAILED",
+                "Status": FAILED,
                 "Reason": "Exception was raised while handling custom resource"
             })
 
