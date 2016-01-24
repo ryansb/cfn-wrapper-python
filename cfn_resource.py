@@ -7,6 +7,9 @@ import urllib2
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+SUCCESS = 'SUCCESS'
+FAILED = 'FAILED'
+
 """
 Event example
 {
