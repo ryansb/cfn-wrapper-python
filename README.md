@@ -59,6 +59,19 @@ def update_thing(event, context):
     return {"PhysicalResourceId": "arn:aws:fake:myID"}
 ```
 
+## Running Tests
+
+To run the tests locally, you need Python 2.7 and `pip`. Ideally, you should
+use a virtualenv.
+
+```
+$ pip install -r test-requirements.txt
+$ py.test
+```
+
+The tests use `mock` and `py.test` and will give you a terminal coverage
+report. Currently the tests cover ~90% of the (very small) codebase.
+
 ## License
 
 This code is released under the MIT software license, see LICENSE.txt for
