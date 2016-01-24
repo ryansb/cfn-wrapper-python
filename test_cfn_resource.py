@@ -53,14 +53,58 @@ base_event = {
     "LogicalResourceId": "FakeThing"
 }
 
+### Tests for the Resource object and its decorator for wrapping
+### user handlers
 
 cfn_resource.wrap_user_handler = wrap_with_mock
-
 
 def test_wraps_func():
     rsrc = cfn_resource.Resource()
     @rsrc.delete
     def delete(event, context):
-        return {"status": cfn_resource.FAILED}
+        return {'Status': cfn_resource.FAILED}
     resp = rsrc(base_event.copy(), FakeLambdaContext())
-    assert(resp['status'] == 'FAILED')
+    assert resp['Status'] == 'FAILED'
+
+def test_succeeds_default():
+    event = base_event.copy()
+    event['PhysicalResourceId'] = 'my-existing-thing'
+    event['RequestType'] = 'Update'
+
+    rsrc = cfn_resource.Resource()
+    resp = rsrc(event, FakeLambdaContext())
+    assert resp == {
+        'Status': 'SUCCESS',
+        'PhysicalResourceId': 'my-existing-thing',
+        'Reason': 'Life is good, man',
+        'Data': {},
+    }
+
+def test_double_register():
+    rsrc = cfn_resource.Resource()
+
+    event = base_event.copy()
+    event['RequestType'] = 'Update'
+
+    @rsrc.update
+    def update(event, context):
+        return {'Data': {'called-from': 1}}
+
+    @rsrc.update
+    def update_two(event, context):
+        return {'Data': {'called-from': 2}}
+
+    resp = rsrc(event, FakeLambdaContext())
+    assert resp['Data'] == {'called-from': 2}
+
+def test_no_override():
+    rsrc = cfn_resource.Resource()
+
+    event = base_event.copy()
+    event['RequestType'] = 'Create'
+
+    @rsrc.create
+    def create(event, context):
+        return {'Data': {'called-from': 1}}
+
+    assert create(event, FakeLambdaContext()) == rsrc(event, FakeLambdaContext())
