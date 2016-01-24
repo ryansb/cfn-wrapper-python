@@ -1,3 +1,4 @@
+import json
 import cfn_resource
 
 
@@ -52,6 +53,29 @@ base_event = {
     "RequestId": "79abbda7-092e-4534-9602-3ab4cc377807",
     "LogicalResourceId": "FakeThing"
 }
+
+### Tests for the wrapper function
+
+import mock
+
+@mock.patch('urllib2.urlopen')
+def test_client_code_failure(urlmock):
+    rsrc = cfn_resource.Resource()
+
+    @rsrc.delete
+    def flaky_function(*args):
+        raise KeyError('Oopsie')
+
+    resp = rsrc(base_event.copy(), FakeLambdaContext())
+
+    args = urlmock.call_args
+    sent_req = args[0][0]
+
+    assert sent_req.get_method() == 'PUT'
+    reply = json.loads(sent_req.data)
+    assert reply['Status'] == cfn_resource.FAILED
+    assert reply['StackId'] == base_event['StackId']
+    assert reply['Reason'] == "Exception was raised while handling custom resource"
 
 ### Tests for the Resource object and its decorator for wrapping
 ### user handlers
