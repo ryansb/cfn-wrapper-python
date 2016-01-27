@@ -31,6 +31,9 @@ def wrap_user_handler(func, base_response=None):
             "LogicalResourceId": event["LogicalResourceId"],
             "Status": SUCCESS,
         }
+        if event.get("PhysicalResourceId", False):
+            response["PhysicalResourceId"] = event["PhysicalResourceId"]
+
         if base_response is not None:
             response.update(base_response)
 
