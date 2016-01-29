@@ -22,7 +22,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='cfn_resource',
 
-    version='0.2.1',
+    version='0.2.2',
 
     description='Wrapper decorators for building CloudFormation custom resources',
     long_description=long_description,
