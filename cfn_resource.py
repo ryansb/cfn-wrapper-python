@@ -2,7 +2,12 @@
 
 import json
 import logging
-import urllib2
+import sys
+if sys.version_info.major == 3:
+    from urllib.request import urlopen, Request, HTTPError, URLError
+    from urllib.parse import urlencode
+else:
+    from urllib2 import urlopen, Request, HTTPError, URLError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -52,20 +57,24 @@ def wrap_user_handler(func, base_response=None):
         logger.info("Responding to '%s' request with: %s" % (
             event['RequestType'], serialized))
 
-        req = urllib2.Request(
-            event['ResponseURL'], data=serialized,
-            headers={'Content-Length': len(serialized),
+        if sys.version_info.major ==3:
+            req_data = serialized.encode('utf-8')
+        else:
+            req_data=serialized
+        req = Request(
+            event['ResponseURL'], data=req_data,
+            headers={'Content-Length': len(req_data),
                      'Content-Type': ''}
         )
         req.get_method = lambda: 'PUT'
 
         try:
-            urllib2.urlopen(req)
+            urlopen(req)
             logger.debug("Request to CFN API succeeded, nothing to do here")
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             logger.error("Callback to CFN API failed with status %d" % e.code)
             logger.error("Response: %s" % e.reason)
-        except urllib2.URLError as e:
+        except URLError as e:
             logger.error("Failed to reach the server - %s" % e.reason)
 
     return wrapper_func
