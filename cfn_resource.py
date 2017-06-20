@@ -57,10 +57,10 @@ def wrap_user_handler(func, base_response=None):
         logger.info("Responding to '%s' request with: %s" % (
             event['RequestType'], serialized))
 
-        if sys.version_info.major ==3:
+        if sys.version_info.major == 3:
             req_data = serialized.encode('utf-8')
         else:
-            req_data=serialized
+            req_data = serialized
         req = Request(
             event['ResponseURL'], data=req_data,
             headers={'Content-Length': len(req_data),
