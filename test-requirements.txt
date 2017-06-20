@@ -1,4 +1,5 @@
 mock
+vcrpy
 pytest
 pytest-cov
 pytest-xdist

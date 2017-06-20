@@ -1,8 +1,10 @@
+import os
 import json
-import mock
+
+import vcr
+import pytest
 
 import cfn_resource
-
 
 class FakeLambdaContext(object):
     def __init__(self, name='Fake', version='LATEST'):
@@ -58,9 +60,17 @@ base_event = {
 
 ### Tests for the wrapper function
 
+@pytest.fixture
+def cassette(request):
+    recordings_file = os.path.join(
+        request.fspath.dirname,
+        'vcr_recordings',
+        request.function.__name__ + '.yaml'
+    ).replace('test_', '')
+    with vcr.use_cassette(recordings_file, record_mode='none') as cass:
+        yield cass
 
-@mock.patch('urllib2.urlopen')
-def test_client_code_failure(urlmock):
+def test_client_code_failure(cassette):
     rsrc = cfn_resource.Resource()
 
     @rsrc.delete
@@ -68,27 +78,25 @@ def test_client_code_failure(urlmock):
         raise KeyError('Oopsie')
 
     resp = rsrc(base_event.copy(), FakeLambdaContext())
+    assert resp is None
+    print(cassette)
 
-    args = urlmock.call_args
-    sent_req = args[0][0]
+    assert json.loads(cassette.requests[0].body)
 
-    reply = json.loads(sent_req.data)
+    reply = json.loads(cassette.requests[0].body)
 
+    assert cassette.requests[0].method == 'PUT'
     assert reply['Status'] == cfn_resource.FAILED
     assert reply['StackId'] == base_event['StackId']
     assert reply['Reason'] == "Exception was raised while handling custom resource"
 
 
-@mock.patch('urllib2.urlopen')
-def test_sends_put_request(urlmock):
+def test_sends_put_request(cassette):
     rsrc = cfn_resource.Resource()
 
     resp = rsrc(base_event.copy(), FakeLambdaContext())
 
-    args = urlmock.call_args
-    sent_req = args[0][0]
-
-    assert sent_req.get_method() == 'PUT'
+    assert cassette.requests[0].method == 'PUT'
 
 ### Tests for the Resource object and its decorator for wrapping
 ### user handlers
