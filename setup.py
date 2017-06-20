@@ -22,7 +22,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='cfn_resource',
 
-    version='0.2.2',
+    version='0.2.3',
 
     description='Wrapper decorators for building CloudFormation custom resources',
     long_description=long_description,
@@ -45,6 +45,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # What does your project relate to?
