@@ -1,0 +1,17 @@
+version: 1
+interactions:
+- request:
+    body: >
+      {"StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/SomeStackHere3/d50d1280-a454-11e5-bd51-50e2416294a8",
+      "Status": "FAILED", "PhysicalResourceId": "SomeStackHere3-FakeThing-893YUKO12RFM",
+      "RequestId": "79abbda7-092e-4534-9602-3ab4cc377807", "Reason": "Exception was
+      raised while handling custom resource", "LogicalResourceId": "FakeThing"}
+    headers:
+      Content-Type: ['']
+    method: PUT
+    uri: https://cloudformation-custom-resource-response-useast1.s3.amazonaws.com/arn%3Aaws%3Acloudformation%3Aus-east-1%3A368950843917%3Astack/SomeStackHere3/d50d1280-a454-11e5-bd51-50e2416294a8%7CFakeThing%7C79abbda7-092e-4534-9602-3ab4cc377807?AWSAccessKeyId=AKIAJNXHFR7P7YGKLDPQ&Expires=1450321030&Signature=HOCkeEsxMHHQMgnj3kx5gqLyfTU%3D
+  response:
+    body: {string: ''}
+    headers:
+      content-type: [application/xml]
+    status: {code: 200, message: OK}
